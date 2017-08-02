@@ -1,0 +1,26 @@
+#!/bin/bash
+
+_output_stderr_dir="output-stderr"
+_output_stdout_dir="output-stdout"
+_jar_dir="jar"
+
+# _conf_dir="conf" # standard configuration file - percentageSplit_0.9
+# _conf_dir="conf-fixedSizeSplit_1000"
+# _conf_dir="conf-percentageSplit_0.5"
+# _conf_dir="conf-percentageSplit_0.66"
+# _conf_dir="conf-fixedSizeSplit_2000"
+_conf_dir="conf-percentageSplit_0.8"
+
+for _filename_full in $_conf_dir/*
+do
+	_now=$(date +"%Y-%m-%d_%H-%M-%S")
+	_filename=$(basename $_filename_full .conf)
+	
+	(/opt/spark-2.1/bin/spark-submit \
+	  --jars $_jar_dir/config-1.3.1.jar,$_jar_dir/scallop_2.11-2.1.1.jar,$_jar_dir/spark-measure_2.11-0.1-SNAPSHOT.jar\
+	  --properties-file spark-submit-local.conf\
+	  --class "GenreRandomForestApp" $_jar_dir/machine-learning_2.11-1.0.jar\
+	  --config $_filename_full | \
+	    tee $_output_stdout_dir/$_now-$_filename-stdout.log) 3>&1 1>&2 2>&3 | \
+	    tee $_output_stderr_dir/$_now-$_filename-stderr.log 
+done

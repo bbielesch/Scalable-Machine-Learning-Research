@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# export HADOOP_HOME=/usr/lib/hadoop
+# export HADOOP_CONF_DIR=/etc/hadoop/conf
+# export YARN_CONF_DIR=$HADOOP_CONF_DIR
+
+_output_stderr_dir="output-native-logreg-stderr-mixed"
+_output_stdout_dir="output-native-logreg-stdout-mixed"
+_jar_dir="jar"
+_conf_dir="conf-logreg-mixed"
+
+for _filename_full in $_conf_dir/*
+do
+	_filename=$(basename $_filename_full .conf)
+		
+	# loop through different amounts of executor memory
+	# 	for _exec_mem in 1G 2G 3G;
+	for _exec_mem in 1G 2G 3G;
+	do
+		# loop through number of cores starting with 2 to 14 and 15 are used
+		for _cores_max in 2 4 6 8 10 12 14 15;
+		do
+			_now=$(date +"%Y-%m-%d_%H-%M-%S")
+			# echo "$_now-$_filename_full"
+			
+			(/opt/spark-2.1/bin/spark-submit \
+			  --jars $_jar_dir/config-1.3.1.jar,$_jar_dir/scallop_2.11-2.1.1.jar,$_jar_dir/spark-measure_2.11-0.1-SNAPSHOT.jar\
+			  --properties-file spark-submit-scape01-native.conf\
+			  --conf "spark.cores.max=$_cores_max"\
+			  --conf "spark.executor.memory=$_exec_mem"\
+			  --class "GenreLogRegApp" $_jar_dir/machine-learning_2.11-1.0.jar\
+			  --config $_$_filename_full | \
+			    tee $_output_stdout_dir/$_now-$_filename-cores$_cores_max-mem$_exec_mem-stdout.log) 3>&1 1>&2 2>&3 | \
+			    tee $_output_stderr_dir/$_now-$_filename-cores$_cores_max-mem$_exec_mem-stderr.log 
+		done
+	done
+done
+
+_output_stderr_dir="output-native-rf-stderr-mixed"
+_output_stdout_dir="output-native-rf-stdout-mixed"
+_jar_dir="jar"
+_conf_dir="conf-rf-mixed"
+
+# _exec_mem="3G" 
+
+for _filename_full in $_conf_dir/*
+do
+	_filename=$(basename $_filename_full .conf)
+		
+	# loop through different amounts of executor memory
+	# for _exec_mem in 1G 2G 3G;
+	for _exec_mem in 1G 2G;
+	do
+		# loop through number of cores starting with 2 to 14 and 15 are used
+		for _cores_max in 2 4 6 8 10 12 14 15;
+		do
+			_now=$(date +"%Y-%m-%d_%H-%M-%S")
+			# echo "$_now-$_filename_full"
+			
+			(/opt/spark-2.1/bin/spark-submit \
+			  --jars $_jar_dir/config-1.3.1.jar,$_jar_dir/scallop_2.11-2.1.1.jar,$_jar_dir/spark-measure_2.11-0.1-SNAPSHOT.jar\
+			  --properties-file spark-submit-scape01-native.conf\
+			  --conf "spark.cores.max=$_cores_max"\
+			  --conf "spark.executor.memory=$_exec_mem"\
+			  --class "GenreRandomForestApp" $_jar_dir/machine-learning_2.11-1.0.jar\
+			  --config $_$_filename_full | \
+			    tee $_output_stdout_dir/$_now-$_filename-cores$_cores_max-mem$_exec_mem-stdout.log) 3>&1 1>&2 2>&3 | \
+			    tee $_output_stderr_dir/$_now-$_filename-cores$_cores_max-mem$_exec_mem-stderr.log 
+		done
+	done
+done
+
+

@@ -1,0 +1,60 @@
+dd#!/bin/bash
+
+export HADOOP_CONF_DIR=/etc/hadoop/conf
+export YARN_CONF_DIR=$HADOOP_CONF_DIR
+
+_now=$(date +"%Y-%m-%d_%H-%M-%S")
+_output_stderr_dir="output-yarn-stderr"
+_output_stdout_dir="output-yarn-stdout"
+_jar_dir="jar"
+_conf_dir="conf-single"
+
+(/opt/spark-2.1/bin/spark-submit \
+  --jars $_jar_dir/config-1.3.1.jar,$_jar_dir/scallop_2.11-2.1.1.jar,$_jar_dir/spark-measure_2.11-0.1-SNAPSHOT.jar \
+  --properties-file spark-submit-yarn.conf \
+  --class "GenreRFCrossValidateApp" $_jar_dir/machine-learning_2.11-1.0.jar \
+  --config $_conf_dir/genre-randomForestCrossValidate.conf | \
+    tee $_output_stdout_dir/$_now-stdout.log) 3>&1 1>&2 2>&3 | \
+    tee $_output_stderr_dir/$_now-stderr.log 
+  
+# --config $_conf_dir/msd-MAGD-jmir_area_of_moments_all.conf
+# --config $_conf_dir/msd-MAGD-jmir_lpc_all.conf
+# --config $_conf_dir/msd-MAGD-jmir_methods_of_moments_all.conf
+# --config $_conf_dir/msd-MAGD-jmir_mfcc_all.conf
+# --config $_conf_dir/msd-MAGD-jmir_spectral_all.conf
+# --config $_conf_dir/msd-MAGD-jmir_spectral_all_derivatives_all.conf
+# --config $_conf_dir/msd-MAGD-marsyas-timbral.conf
+# --config $_conf_dir/msd-MAGD-mvd.conf
+# --config $_conf_dir/msd-MAGD-rh.conf
+# --config $_conf_dir/msd-MAGD-rp.conf
+# --config $_conf_dir/msd-MAGD-ssd.conf
+# --config $_conf_dir/msd-MAGD-trh.conf
+# --config $_conf_dir/msd-MAGD-tssd.conf
+
+# --config $_conf_dir/msd-MASD-jmir_area_of_moments_all.conf # currently some issue with feature file
+# --config $_conf_dir/msd-MASD-jmir_lpc_all.conf # fine
+# --config $_conf_dir/msd-MASD-jmir_methods_of_moments_all.conf # currently some issues with feature file
+# --config $_conf_dir/msd-MASD-jmir_mfcc_all.conf # fine
+# --config $_conf_dir/msd-MASD-jmir_spectral_all.conf # fine
+# --config $_conf_dir/msd-MASD-jmir_spectral_all_derivatives_all.conf # fine
+# --config $_conf_dir/msd-MASD-marsyas-timbral.conf
+# --config $_conf_dir/msd-MASD-mvd.conf
+# --config $_conf_dir/msd-MASD-rh.conf
+# --config $_conf_dir/msd-MASD-rp.conf
+# --config $_conf_dir/msd-MASD-ssd.conf
+# --config $_conf_dir/msd-MASD-trh.conf
+# --config $_conf_dir/msd-MASD-tssd.conf
+
+# --config $_conf_dir/msd-topMAGD-jmir_area_of_moments_all.conf
+# --config $_conf_dir/msd-topMAGD-jmir_lpc_all.conf
+# --config $_conf_dir/msd-topMAGD-jmir_methods_of_moments_all.conf
+# --config $_conf_dir/msd-topMAGD-jmir_mfcc_all.conf
+# --config $_conf_dir/msd-topMAGD-jmir_spectral_all.conf
+# --config $_conf_dir/msd-topMAGD-jmir_spectral_all_derivatives_all.conf
+# --config $_conf_dir/msd-topMAGD-marsyas-timbral.conf
+# --config $_conf_dir/msd-topMAGD-mvd.conf
+# --config $_conf_dir/msd-topMAGD-rh.conf
+# --config $_conf_dir/msd-topMAGD-rp.conf
+# --config $_conf_dir/msd-topMAGD-ssd.conf
+# --config $_conf_dir/msd-topMAGD-trh.conf
+# --config $_conf_dir/msd-topMAGD-tssd.conf

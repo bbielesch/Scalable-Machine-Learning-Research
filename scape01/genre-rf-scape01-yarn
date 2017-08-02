@@ -1,0 +1,27 @@
+#!/bin/bash
+
+export HADOOP_HOME=/usr/lib/hadoop
+export HADOOP_CONF_DIR=/etc/hadoop/conf
+export YARN_CONF_DIR=$HADOOP_CONF_DIR
+
+_now=$(date +"%Y-%m-%d_%H-%M-%S")
+_output_stderr_dir="output-yarn-stderr"
+_output_stdout_dir="output-yarn-stdout"
+_jar_dir="jar"
+_conf_dir="conf-single"
+
+_exec_inst="6"
+_exec_cores="2"
+_exec_mem="4G" 
+
+(/opt/spark-2.1/bin/spark-submit \
+  --jars $_jar_dir/config-1.3.1.jar,$_jar_dir/scallop_2.11-2.1.1.jar,$_jar_dir/spark-measure_2.11-0.1-SNAPSHOT.jar\
+  --deploy-mode client\
+  --conf "spark.executors.instances=$_exec_inst"\
+  --conf "spark.executor.cores=$_exec_cores"\
+  --conf "spark.executor.memory=$_exec_mem"\
+  --properties-file spark-submit-yarn.conf\
+  --class "GenreRandomForestApp" $_jar_dir/machine-learning_2.11-1.0.jar\
+  --config $_conf_dir/genre-randomForest.conf | \
+    tee $_output_stdout_dir/$_now-exec-$_num_exec-cores-$_exec_cores-mem-$_exec_mem-stdout.log) 3>&1 1>&2 2>&3 | \
+    tee $_output_stderr_dir/$_now-exec-$_num_exec-cores-$_exec_cores-mem-$_exec_mem-stderr.log 
